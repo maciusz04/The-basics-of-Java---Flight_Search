@@ -6,15 +6,15 @@ public class FlightDatabase {
     ArrayList<Flight> flights = new ArrayList<Flight>();
 
     public FlightDatabase() {
-        flights.add(new Flight("Berlin", "Tokio"));
-        flights.add(new Flight("Paris", "Berlin"));
-        flights.add(new Flight("Warsaw", "Paris"));
-        flights.add(new Flight("Madrid", "Berlin"));
-        flights.add(new Flight("Berlin", "Warsaw"));
-        flights.add(new Flight("Paris", "Madrid"));
-        flights.add(new Flight("Porto", "Warsaw"));
-        flights.add(new Flight("Madrid", "Porto"));
-        flights.add(new Flight("Warsaw", "Madrid"));
+        flights.add(new Flight("Berlin", "Tokio", 1800));
+        flights.add(new Flight("Paris", "Berlin", 79));
+        flights.add(new Flight("Warsaw", "Paris", 120));
+        flights.add(new Flight("Madrid", "Berlin",200));
+        flights.add(new Flight("Berlin", "Warsaw", 77));
+        flights.add(new Flight("Paris", "Madrid", 180));
+        flights.add(new Flight("Porto", "Warsaw", 412));
+        flights.add(new Flight("Madrid", "Porto", 102));
+        flights.add(new Flight("Warsaw", "Madrid", 380));
     }
 
     public boolean checkIfFlightExists(String start, String end) {
@@ -40,8 +40,6 @@ public class FlightDatabase {
         return flightsList;
     }
 
-
-
     public ArrayList<Flight> getFlightsToCity(String cityEnd){
         ArrayList<Flight> flightsList = new ArrayList<Flight>();
         for(int i=0; i<this.flights.size(); i++){
@@ -57,8 +55,7 @@ public class FlightDatabase {
         if(results.isEmpty()){
             System.out.println("Flight not found");
         }
-        for (int i=0; i<results.size(); i++){
-            Flight flight = results.get(i);
+        for (Flight flight : results){
             System.out.println(flight.getInfo());
         }
     }
@@ -75,14 +72,12 @@ public class FlightDatabase {
 
     public ArrayList<String> getCities(){
         ArrayList<String> listOfCities  = new ArrayList<String>();
-        for(int i=0; i<this.flights.size(); i++){
-            String city = flights.get(i).departure;
-            if(!listOfCities.contains(city)){
-                listOfCities.add(city);
+        for(Flight flight : this.flights){
+            if(!listOfCities.contains(flight.departure)){
+                listOfCities.add(flight.departure);
             }
-            city = flights.get(i).arrival;
-            if(!listOfCities.contains(city)){
-                listOfCities.add(city);
+            if(!listOfCities.contains(flight.arrival)){
+                listOfCities.add(flight.arrival);
             }
         }
         return listOfCities;
@@ -90,9 +85,46 @@ public class FlightDatabase {
 
     public void displayAllCities(){
         ArrayList<String> listOfCities = getCities();
-        for(int i=0; i<listOfCities.size(); i++){
-            System.out.print(listOfCities.get(i) + " ");
+        for(String flight : listOfCities){
+            System.out.print(flight + " ");
         }
         System.out.println();
+    }
+
+    public Flight getCheapestFlight() {
+        Flight cheapestFlight = null;
+        for(Flight flight : flights){
+            if(cheapestFlight==null || flight.price<cheapestFlight.price)
+                cheapestFlight=flight;
+        }
+        return cheapestFlight;
+    }
+
+    public Flight getCheapestFlightFromCity(String city){
+        Flight cheapestFromCity = null;
+        ArrayList <Flight> cities = new ArrayList<>();
+        cities = getFlightsFromCity(city);
+        if(cities!=null){
+            for(Flight flight : cities){
+                if(cheapestFromCity==null || flight.price< cheapestFromCity.price)
+                    cheapestFromCity=flight;
+            }
+        }
+
+        return cheapestFromCity;
+    }
+
+    public ArrayList<Journey> getFlights(String start, String end){
+        ArrayList<Flight> startCities =  getFlightsFromCity(start);
+        ArrayList<Flight> endCities = getFlightsToCity(end);
+        ArrayList<Journey> results = new ArrayList<Journey>();
+        for(Flight flight : startCities){
+            for(Flight flight1 : endCities){
+                if(flight.arrival.equals(flight1.departure)){
+                    results.add(new Journey(flight, flight1));
+                }
+            }
+        }
+        return results;
     }
     }
